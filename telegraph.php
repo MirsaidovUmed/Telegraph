@@ -4,17 +4,97 @@ $textStorage = [];
 
 class TelegraphText
 {
-    public string $title;
-    public string $text;
-    public string $author;
-    public DateTimeImmutable $published;
-    public string $slug;
+    private string $title;
+    private string $text;
+    private string $author;
+    private DateTimeImmutable $published;
+    private string $slug;
 
     public function __construct(string $author, string $slug)
     {
         $this->author = $author;
         $this->slug = $slug;
         $this->published = new DateTimeImmutable();
+    }
+
+    /**
+     * @param string $title
+     */
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
+    }
+
+    /**
+     * @param string $text
+     */
+    public function setText(string $text): void
+    {
+        $this->text = $text;
+    }
+
+    /**
+     * @param string $slug
+     */
+    public function setSlug(string $slug): void
+    {
+        $this->slug = $slug;
+    }
+
+    /**
+     * @param DateTimeImmutable $published
+     */
+    public function setPublished(DateTimeImmutable $published): void
+    {
+        $this->published = $published;
+    }
+
+    /**
+     * @param string $author
+     */
+    public function setAuthor(string $author): void
+    {
+        $this->author = $author;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    /**
+     * @return string
+     */
+    public function getText(): string
+    {
+        return $this->text;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @return DateTimeImmutable
+     */
+    public function getPublished(): DateTimeImmutable
+    {
+        return $this->published;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthor(): string
+    {
+        return $this->author;
     }
 
     public function storeText(): void
@@ -81,7 +161,8 @@ class Spl extends View
     {
         $spl = file_get_contents(sprintf('templates/%s.spl', $this->templateName));
         foreach ($this->variables as $key) {
-            $spl = str_replace('$$' . $key . '$$', $telegraphText->$key, $spl);
+            $getterMethod = 'get' . ucfirst($key);
+            $spl = str_replace('$$' . $key . '$$', $telegraphText->$getterMethod(), $spl);
         }
         return $spl;
     }
@@ -93,11 +174,13 @@ class Txt extends View implements IRender
     {
         $txt = file_get_contents(sprintf('templates/%s.txt', $this->templateName));
         foreach ($this->variables as $key) {
-            $txt = str_replace('%%' . $key . '%%', $telegraphText->$key, $txt);
+            $getterMethod = 'get' . ucfirst($key);
+            $txt = str_replace('%%' . $key . '%%', $telegraphText->$getterMethod(), $txt);
         }
         return $txt;
     }
 }
+
 
 class Swig extends View implements IRender
 {
@@ -105,7 +188,8 @@ class Swig extends View implements IRender
     {
         $swig = file_get_contents(sprintf('templates/%s.swig', $this->templateName));
         foreach ($this->variables as $key) {
-            $swig = str_replace('{{ ' . $key . ' }}', $telegraphText->$key, $swig);
+            $getterMethod = 'get' . ucfirst($key);
+            $swig = str_replace('{{ ' . $key . ' }}', $telegraphText->$getterMethod(), $swig);
         }
         return $swig;
     }
@@ -144,7 +228,7 @@ class FileStorage extends Storage
 
     public function create(TelegraphText $text): string
     {
-        $slug = $text->slug . '_' . date('Ymd');
+        $slug = $text->getSlug() . '_' . date('Ymd');
         $count = 0;
         $suffix = '';
         while (file_exists($this->getPath($slug . $suffix))) {
@@ -153,7 +237,7 @@ class FileStorage extends Storage
                 $suffix = "_$count";
             }
         }
-        $text->slug = $slug . $suffix;
+        $text->setSlug($slug . $suffix);
         file_put_contents($this->getPath($slug . $suffix), serialize($text));
         return $slug . $suffix;
     }
