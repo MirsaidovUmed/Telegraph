@@ -38,6 +38,9 @@ class TelegraphText
      */
     public function setSlug(string $slug): void
     {
+        if (!preg_match('/^[a-zA-Z0-9-_]+\z/', $slug)) {
+            throw new RuntimeException("Недопустимые символы");
+        }
         $this->slug = $slug;
     }
 
@@ -54,6 +57,9 @@ class TelegraphText
      */
     public function setAuthor(string $author): void
     {
+        if (mb_strlen($author) > 20) {
+            throw new RuntimeException("Слишком много символов");
+        }
         $this->author = $author;
     }
 
@@ -95,6 +101,40 @@ class TelegraphText
     public function getAuthor(): string
     {
         return $this->author;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function __set(string $name, string|DateTimeImmutable $value): void
+    {
+        $method = 'set' . ucfirst($name);
+        if (!method_exists($this, $method)) {
+            throw new Exception("Такой метод не существует");
+        }
+        $this->$method($value);
+
+        if ($name == 'text') {
+            $this->storeText();
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+
+    public function __get(string $name): string|DateTimeImmutable
+    {
+        $method = 'get' . ucfirst($name);
+        if ($name == 'text') {
+            return $this->loadText();
+        } elseif (method_exists($this, $method)) {
+            return $this->$method();
+        } elseif (property_exists($this, $name)) {
+            return $this->$name;
+        } else {
+            throw new Exception('Такое свойство не существует');
+        }
     }
 
     public function storeText(): void
