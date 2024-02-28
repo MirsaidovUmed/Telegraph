@@ -75,7 +75,7 @@ abstract class View
     }
 }
 
-class Spl extends View implements IRender
+class Spl extends View
 {
     public function render(TelegraphText $telegraphText): string
     {
@@ -84,6 +84,18 @@ class Spl extends View implements IRender
             $spl = str_replace('$$' . $key . '$$', $telegraphText->$key, $spl);
         }
         return $spl;
+    }
+}
+
+class Txt extends View implements IRender
+{
+    public function render(TelegraphText $telegraphText): string
+    {
+        $txt = file_get_contents(sprintf('templates/%s.txt', $this->templateName));
+        foreach ($this->variables as $key) {
+            $txt = str_replace('%%' . $key . '%%', $telegraphText->$key, $txt);
+        }
+        return $txt;
     }
 }
 
@@ -206,7 +218,11 @@ $swig->addVariablesToTemplate(['slug', 'text']);
 $spl = new Spl('telegraph_text');
 $spl->addVariablesToTemplate(['slug', 'title', 'text']);
 
-$templateEngines = [$swig, $spl];
+$txt = new Txt('telegraph_text');
+$txt->addVariablesToTemplate(['slug', 'title', 'text']);
+
+
+$templateEngines = [$swig, $spl, $txt];
 foreach ($templateEngines as $engine) {
     if ($engine instanceof IRender) {
         echo $engine->render($telegraphText) . PHP_EOL;
