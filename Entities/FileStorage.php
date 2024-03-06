@@ -4,6 +4,8 @@ namespace App\Entities;
 
 use App\Entities\Storage;
 
+require_once 'Storage.php';
+
 class FileStorage extends Storage
 {
     public string $dir = "file_folder";

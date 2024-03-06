@@ -31,9 +31,13 @@ class TelegraphText
 
     /**
      * @param string $text
+     * @throws Exception
      */
     public function setText(string $text): void
     {
+        if (mb_strlen($text) < 1 || mb_strlen($text) > 500 ){
+            throw new Exception("Длина текста должна быть от 1 до 500 символов");
+        }
         $this->text = $text;
     }
 

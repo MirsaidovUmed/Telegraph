@@ -8,5 +8,5 @@ abstract class User
     protected string $name;
     protected string $role;
 
-    abstract function getTextsToEdit();
+    abstract function getTextsToEdit(): array;
 }

@@ -1,5 +1,7 @@
 <?php
 
+use App\vendor;
+
 spl_autoload_register(function (string $class): void {
     if (str_starts_with($class, 'App\\')) {
         $classPath = preg_replace('/^App/', '', $class);
